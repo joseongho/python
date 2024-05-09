@@ -50,10 +50,10 @@ class AIClassifier:
 
         # euclidean distance
         for x in self.inputImgage:
-            k = 3
+            k = 5
             value = []
             for y in self.imageData:
-                value.append(numpy.sqrt(numpy.sum(numpy.square(x.getArray()-y.getArray()))))
+                value.append(numpy.sum(numpy.square(x.getArray()-y.getArray())))
 
             index = numpy.argsort(value)
 
@@ -79,21 +79,24 @@ class MyReport:
 
     def report(self):
 
-        row =5
+        accuracy = 0
+        report=[]
+        for i in range(0,len(self.inputData)):
+            if self.inputData[i].name == self.result[i]:
+                accuracy+=1
+                report.append([self.inputData[i],self.result[i]])
+
+
+        row =len(report)
         pyplot.figure('report')
 
         for i in range(0, row):
             pyplot.subplot(row, 1, i+1)
-            pyplot.imshow(self.inputData[i].image)
-            pyplot.text(100, 50,'input: '+ self.inputData[i].name)
-            pyplot.text(100, 100,'output: '+ self.result[i])
+            pyplot.imshow(report[i][0].image)
+            pyplot.text(100, 50,'input: '+ report[i][0].name)
+            pyplot.text(100, 100,'output: '+ report[i][1])
             pyplot.gca().axes.xaxis.set_visible(False)
             pyplot.gca().axes.yaxis.set_visible(False)
-
-        accuracy = 0
-        for i in range(0,len(self.inputData)):
-            if self.inputData[i].name == self.result[i]:
-                accuracy+=1
 
 
         pyplot.figtext(0.05,0.05,'accuracy: '+str(accuracy))
