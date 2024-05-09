@@ -13,7 +13,7 @@ class MyImage:
         self.image.show()
 
     def getArray(self):
-        return numpy.array(self.image.resize((90, 90)))
+        return numpy.array(self.image)
 
 
 class ImageLoader:
@@ -25,14 +25,12 @@ class ImageLoader:
         dirList = os.listdir(dataDir)
         for dirName in dirList:
             if dirName != "README":
-                tmpList = []
                 imageList = dirList = os.listdir(
                     os.path.join(dataDir, dirName))
                 for imageName in imageList:
                     tmpImage = MyImage(image=Image.open(
                         os.path.join(dataDir, dirName, imageName)), name=dirName)
-                    tmpList.append(tmpImage)
-                self.storedImage.append(tmpList)
+                    self.storedImage.append(tmpImage)
 
     def loadInput(self, dataDir: str):
         imageList = os.listdir(dataDir)
@@ -52,25 +50,24 @@ class AIClassifier:
 
         # euclidean distance
         for x in self.inputImgage:
-            tmpX = []
-            for name in self.imageData:
-                tmpName = []
-                for y in name:
-                    tmpName.append([numpy.linalg.norm(y.getArray()-x.getArray(),2), y])
-                tmpX.append(tmpName)
-            result.append(tmpX)
+            k = 3
+            value = []
+            for y in self.imageData:
+                value.append(numpy.sqrt(numpy.sum(numpy.square(x.getArray()-y.getArray()))))
 
-        # find nearest
-        tmp = []
-        for x in result:
-            tmpX = [9999999, '']
-            for name in x:
-                for y in name:
-                    if tmpX[0] > y[0]:
-                        tmpX[0] = y[0]
-                        tmpX[1] = y[1]
-            tmp.append(tmpX[1])
-        result = tmp
+            index = numpy.argsort(value)
+
+            # find nearest
+            name={'s1':0,'s2':0,'s3':0,'s4':0,'s5':0,'s6':0,'s7':0,'s8':0,'s9':0,'s10':0,'s11':0,'s12':0,'s13':0,'s14':0,'s15':0,'s16':0,'s17':0,'s18':0,'s19':0,'s20':0,'s21':0,'s22':0,'s23':0,'s24':0,'s25':0,'s26':0,'s27':0,'s28':0,'s29':0,'s30':0,'s31':0,'s32':0,'s33':0,'s34':0,'s35':0,'s36':0,'s37':0,'s38':0,'s39':0,'s40':0}
+            for i in range(0,len(index)):
+                if index[i]<k:
+                    name[self.imageData[i].name]+=1
+            tmp=[0,'']
+            for x in name:
+                if tmp[0]<name[x]:
+                    tmp=[name[x],x]
+
+            result.append(tmp[1])
 
         return result
 
@@ -82,31 +79,24 @@ class MyReport:
 
     def report(self):
 
-        accuracy = 0
+        row =5
         pyplot.figure('report')
-        for i in range(0, len(self.inputData)):
-            pyplot.subplot(len(self.inputData), 2, i*2+1)
-            # pyplot.imshow(self.inputData[i].image)
-            if i == 0:
-                pyplot.title('input')
-            # pyplot.text(100, 50,'id: '+ self.inputData[i].name)
-            pyplot.text(0, 0,'id: '+ self.inputData[i].name)
+
+        for i in range(0, row):
+            pyplot.subplot(row, 1, i+1)
+            pyplot.imshow(self.inputData[i].image)
+            pyplot.text(100, 50,'input: '+ self.inputData[i].name)
+            pyplot.text(100, 100,'output: '+ self.result[i])
             pyplot.gca().axes.xaxis.set_visible(False)
             pyplot.gca().axes.yaxis.set_visible(False)
 
-            pyplot.subplot(len(self.inputData), 2, i*2+2)
-            # pyplot.imshow(self.result[i].image)
-            if i == 0:
-                pyplot.title('output')
-            # pyplot.text(100, 50, 'id: '+self.result[i].name)
-            pyplot.text(0, 0, 'id: '+self.result[i].name)
-            pyplot.gca().axes.xaxis.set_visible(False)
-            pyplot.gca().axes.yaxis.set_visible(False)
+        accuracy = 0
+        for i in range(0,len(self.inputData)):
+            if self.inputData[i].name == self.result[i]:
+                accuracy+=1
 
-            if self.inputData[i].name == self.result[i].name:
-                accuracy += 1
 
-        pyplot.figtext(0.05, 0.05, 'accuracy: ' + str(accuracy))
+        pyplot.figtext(0.05,0.05,'accuracy: '+str(accuracy))
         pyplot.show()
 
 
