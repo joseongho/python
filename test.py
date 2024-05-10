@@ -97,15 +97,24 @@ class KerasClassifier:
 
         model = keras.Sequential([
             keras.layers.Flatten(input_shape=(112, 92)),
-            keras.layers.Dense(5000, activation='relu'),
-            keras.layers.Dense(41)
+            keras.layers.Dense(10000, activation='relu'),
+            keras.layers.Dense(41),
+            keras.layers.Softmax()
         ])
 
-        model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.00001),
+        model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0001),
               loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
         
-        model.fit(train_images, train_labels, epochs=100, validation_data=(test_images,test_labels))
+        model.fit(train_images, train_labels, epochs=20, validation_data=(test_images,test_labels))
+
+        prediction= model.predict(test_images)
+        prediction= numpy.argmax(prediction,axis=1)
+
+        result=[]
+        for i in prediction:
+            result.append('s'+str(i))
+        return result
 
 class MyReport:
     def __init__(self, inputData: list, result: list) -> None:
@@ -147,5 +156,5 @@ if __name__ == "__main__":
     myAI = KerasClassifier(imageData=data.storedImage, inputImage=data.inputImage)
     result = myAI.analyze()
 
-    # report = MyReport(inputData=data.inputImage, result=result)
-    # report.report()
+    report = MyReport(inputData=data.inputImage, result=result)
+    report.report()
