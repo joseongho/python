@@ -2,6 +2,7 @@ import os
 from PIL import Image
 import numpy
 from matplotlib import pyplot
+import keras
 
 
 class MyImage:
@@ -71,6 +72,40 @@ class AIClassifier:
 
         return result
 
+class KerasClassifier:
+    def __init__(self, imageData: list, inputImage: list) -> None:
+        self.imageData = imageData
+        self.inputImgage = inputImage
+
+    def analyze(self):
+
+        train_images = []
+        train_labels = []
+        for image in self.imageData:
+            train_images.append(image.getArray())
+            train_labels.append(int(image.name[1:]))
+        train_images = numpy.array(train_images)
+        train_labels= numpy.array(train_labels)
+
+        test_images = []
+        test_labels = []
+        for image in self.inputImgage:
+            test_images.append(image.getArray())
+            test_labels.append(int(image.name[1:]))
+        test_images = numpy.array(test_images)
+        test_labels= numpy.array(test_labels)
+
+        model = keras.Sequential([
+            keras.layers.Flatten(input_shape=(112, 92)),
+            keras.layers.Dense(5000, activation='relu'),
+            keras.layers.Dense(41)
+        ])
+
+        model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.00001),
+              loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+        
+        model.fit(train_images, train_labels, epochs=100, validation_data=(test_images,test_labels))
 
 class MyReport:
     def __init__(self, inputData: list, result: list) -> None:
@@ -108,8 +143,9 @@ if __name__ == "__main__":
     data.loadImage('data')
     data.loadInput('input')
 
-    myAI = AIClassifier(imageData=data.storedImage, inputImage=data.inputImage)
+    # myAI = AIClassifier(imageData=data.storedImage, inputImage=data.inputImage)
+    myAI = KerasClassifier(imageData=data.storedImage, inputImage=data.inputImage)
     result = myAI.analyze()
 
-    report = MyReport(inputData=data.inputImage, result=result)
-    report.report()
+    # report = MyReport(inputData=data.inputImage, result=result)
+    # report.report()
