@@ -18,11 +18,11 @@ class MyImage:
 
 
 class ImageLoader:
-    def __init__(self) -> None:
-        self.storedImage = []
-        self.inputImage = []
 
     def loadImage(self, dataDir: str):
+
+        storedImage=[]
+
         dirList = os.listdir(dataDir)
         for dirName in dirList:
             if dirName != "README":
@@ -31,14 +31,21 @@ class ImageLoader:
                 for imageName in imageList:
                     tmpImage = MyImage(image=Image.open(
                         os.path.join(dataDir, dirName, imageName)), name=dirName)
-                    self.storedImage.append(tmpImage)
+                    storedImage.append(tmpImage)
+
+        return storedImage
 
     def loadInput(self, dataDir: str):
+
+        inputImage=[]
+
         imageList = os.listdir(dataDir)
         for imageName in imageList:
             tmpImage = Image.open(os.path.join(dataDir,  imageName))
-            self.inputImage.append(
+            inputImage.append(
                 MyImage(image=tmpImage, name=imageName[:-4]))
+
+        return inputImage
 
 
 class AIClassifier:
@@ -166,13 +173,15 @@ class MyReport:
 
 
 if __name__ == "__main__":
-    data = ImageLoader()
-    data.loadImage('data')
-    data.loadInput('input')
 
-    # myAI = AIClassifier(imageData=data.storedImage, inputImage=data.inputImage)
-    myAI = KerasClassifier(imageData=data.storedImage, inputImage=data.inputImage)
+    data = ImageLoader()
+
+    storedImage = data.loadImage('data')
+    inputImage= data.loadInput('input')
+
+    # myAI = AIClassifier(imageData=storedImage, inputImage=inputImage)
+    myAI = KerasClassifier(imageData=storedImage, inputImage=inputImage)
     result = myAI.analyze()
 
-    report = MyReport(inputData=data.inputImage, result=result)
+    report = MyReport(inputData=inputImage, result=result)
     report.report()
