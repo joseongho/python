@@ -86,6 +86,7 @@ class KerasClassifier:
             train_labels.append(int(image.name[1:]))
         train_images = numpy.array(train_images)
         train_labels= numpy.array(train_labels)
+        train_labels-= 1
 
         test_images = []
         test_labels = []
@@ -94,26 +95,26 @@ class KerasClassifier:
             test_labels.append(int(image.name[1:]))
         test_images = numpy.array(test_images)
         test_labels= numpy.array(test_labels)
+        test_labels-= 1
 
         model = keras.Sequential([
             keras.layers.Flatten(input_shape=(112, 92)),
             keras.layers.Dense(10000, activation='relu'),
-            keras.layers.Dense(41),
-            keras.layers.Softmax()
+            keras.layers.Dense(40,activation='softmax'),
         ])
 
-        model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0001),
+        model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.00001),
               loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
         
-        model.fit(train_images, train_labels, epochs=20, validation_data=(test_images,test_labels))
+        model.fit(train_images, train_labels, epochs=10, validation_data=(test_images,test_labels))
 
         prediction= model.predict(test_images)
         prediction= numpy.argmax(prediction,axis=1)
 
         result=[]
         for i in prediction:
-            result.append('s'+str(i))
+            result.append('s'+str(i+1))
         return result
 
 class MyReport:
@@ -123,17 +124,14 @@ class MyReport:
 
     def report(self):
 
-        accuracy = 0
+        #true
         report=[]
         for i in range(0,len(self.inputData)):
             if self.inputData[i].name == self.result[i]:
-                accuracy+=1
                 report.append([self.inputData[i],self.result[i]])
 
-
         row =len(report)
-        pyplot.figure('report')
-
+        pyplot.figure('true')
         for i in range(0, row):
             pyplot.subplot(row, 1, i+1)
             pyplot.imshow(report[i][0].image)
@@ -143,8 +141,28 @@ class MyReport:
             pyplot.gca().axes.yaxis.set_visible(False)
 
 
-        pyplot.figtext(0.05,0.05,'accuracy: '+str(accuracy))
+        pyplot.figtext(0.05,0.05,'count: '+str(len(report)))
+
+        #faluse
+        report=[]
+        for i in range(0,len(self.inputData)):
+            if self.inputData[i].name != self.result[i]:
+                report.append([self.inputData[i],self.result[i]])
+
+        row =len(report)
+        pyplot.figure('faluse')
+        for i in range(0, row):
+            pyplot.subplot(row, 1, i+1)
+            pyplot.imshow(report[i][0].image)
+            pyplot.text(100, 50,'input: '+ report[i][0].name)
+            pyplot.text(100, 100,'output: '+ report[i][1])
+            pyplot.gca().axes.xaxis.set_visible(False)
+            pyplot.gca().axes.yaxis.set_visible(False)
+
+
+        pyplot.figtext(0.05,0.05,'count: '+str(len(report)))
         pyplot.show()
+
 
 
 if __name__ == "__main__":
